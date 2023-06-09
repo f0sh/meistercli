@@ -34,22 +34,30 @@ def tasks():
 @click.option('-id', '--task-id', type=int, help='get a specific task')
 @click.option('-s', '--status', default="open", type=click.Choice(['open', 'completed', 'trashed', 'completed_archived']), help='only get tasks with the given status')
 @click.option('-c', '--section', type=int, help='only get tasks in the given section')
-@click.option('-q', '--query', type=str, multiple=True, help='only get tasks with given string in name')
+@click.option('-q', '--query', type=str, default=[], multiple=True, help='only get tasks with given string in name')
+@click.option('-t', '--token', type=str, help='a task token from the web interface')
 @click.pass_context
-def list_tasks(ctx, task_id, status, section, query):
-    """lists all tasks by project"""
+def list_tasks(ctx, task_id, status, section, query: list, token):
+    """lists a single task by id or all tasks by project or section"""
 
     project_id = ctx.parent.parent.params['project']
     meisterApi = ctx.obj
+
+    if(token and token.startswith("http")):
+        token = token.split("/")[-1]
+
+    if token:
+        query = list(query)
+        query.append('token={}'.format(token))
 
     if(task_id):
         ressources = list(meisterApi.tasks.get(task_id))
 
     elif(section):
-        ressources = meisterApi.tasks.filter_by_section(section, status=status)
+        ressources = meisterApi.tasks.filter_by_section(section, status=status, items=500)
 
     else:
-        ressources = meisterApi.tasks.filter_by_project(project_id, status=status)
+        ressources = meisterApi.tasks.filter_by_project(project_id, status=status, items=500)
         
     #ressources = list(filter(lambda x: x.name.find(filter_name), ressources))
     
@@ -58,8 +66,9 @@ def list_tasks(ctx, task_id, status, section, query):
 
     headers, data = helpers._prepareTabulateData(ressources)
     width = helpers._prepareTabulateWidth(headers)
-    click.echo("Found {} items:".format(len(data)))
+    
     click.echo(tabulate(data, headers=headers, tablefmt="simple_grid", maxcolwidths=width))
+    click.echo("Found {} items:".format(len(data)))
 
 
 @tasks.command('getid')
@@ -67,12 +76,20 @@ def list_tasks(ctx, task_id, status, section, query):
 @click.option('-s', '--status', default="open", type=click.Choice(['open', 'completed', 'trashed', 'completed_archived']), help='only get tasks with the given status')
 @click.option('-c', '--section', type=int, help='only get tasks in the given section')
 @click.option('-q', '--query', type=str, multiple=True, help='only get tasks with given string in name')
+@click.option('-t', '--token', type=str, help='a task token from the web interface')
 @click.pass_context
-def getid_of_task(ctx, task_id, status, section, query):
-    """lists all elements by project"""
+def getid_of_task(ctx, task_id, status, section, query, token):
+    """returns an id for task"""
     
     project_id = ctx.parent.parent.params['project']
     meisterApi = ctx.obj
+
+    if(token and token.startswith("http")):
+        token = token.split("/")[-1]
+
+    if token:
+        query = list(query)
+        query.append('token={}'.format(token))
 
     if(task_id):
         ressources = list(meisterApi.tasks.get(task_id))
@@ -93,6 +110,26 @@ def getid_of_task(ctx, task_id, status, section, query):
     except IndexError as e:
         pass
 
+@tasks.command('add')
+@click.argument('title', callback=helpers.get_stdin, required=True)
+@click.option('-c', '--section', type=str, required=True, help='the section-id')
+@click.option('-n', '--notes', type=str, required=False, help='desciption for the task')
+@click.option('-d', '--due', type=str, required=False, help='due date')
+@click.option('-l', '--label', type=int, required=False, multiple=True, help='label id')
+@click.pass_context
+def add_task(ctx, title, section, notes, due, label):
+    """create a new task"""
+
+    if not title: task_title = click.prompt("Task Title", type=str)
+    if not title: task_note = click.prompt("Task Description", type=str)
+
+    data = {}
+    if title: data['name'] = title
+    if notes: data['notes'] = notes
+    if due: data['due'] = due
+    if label: data['label'] = label
+    click.echo("About to create new task: {}".format(data))
+    ctx.obj.tasks.create(section_id=section, data=data)
     
 
 @cli.group()

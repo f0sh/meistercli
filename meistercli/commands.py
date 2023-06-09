@@ -18,12 +18,6 @@ def _getTask(field, value):
         if(getattr(t, field)) == value:
             return t
 
-def get_taskid(ctx, param, value):
-    if not value and not click.get_text_stream('stdin').isatty():
-        return click.get_text_stream('stdin').read().strip()
-    else:
-        return value
-
 @click.group()
 @click.option('--apikey', help="Set the API key")
 @click.option('-p', '--project', default=2374836, help="Set the project id")
@@ -74,16 +68,20 @@ def getid(self, query):
     click.echo("ID for task \"{}\" is: {}".format(task.name, task.id))
 
 @cli.command()
-@click.argument('task-id', nargs=1)
-@click.argument('comment', nargs=1)
-def comment(task_id, comment):
+@click.argument('comment', callback=helpers.get_stdin, required=False)
+@click.option('-id', '--task-id', callback=helpers.get_stdin, required=False)
+@click.pass_context
+def comment(ctx, comment, task_id):
     """add a comment to a given task-id"""
 
     data = {'text':comment}
-    meisterApi.comments.create(task_id, data)
+    if(comment and task_id):
+        ctx.obj.comments.create(task_id, data)
+    else:
+        click.echo("Error: Either task id or comment is missing.")
 
 @cli.command()
-@click.argument('task-id', callback=get_taskid, required=False)
+@click.argument('task-id', callback=helpers.get_stdin, required=False)
 @click.pass_context
 def start(ctx, task_id):
     """start a work interval for a given task-id"""
@@ -93,7 +91,7 @@ def start(ctx, task_id):
 
 
 @cli.command()
-@click.argument('task-id', callback=get_taskid, required=False)
+@click.argument('task-id', callback=helpers.get_stdin, required=False)
 @click.pass_context
 def stop(ctx, task_id):
     """stop a running work interval for a given task-id"""

@@ -1,6 +1,12 @@
 import click
 from datetime import datetime, timezone, timedelta
 
+def get_stdin(ctx, param, value):
+    if not value and not click.get_text_stream('stdin').isatty():
+        return click.get_text_stream('stdin').read().strip()
+    else:
+        return value
+
 def _getStatus(object, id):
 
     res_type = str(type(object))
