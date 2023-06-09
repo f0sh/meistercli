@@ -1,7 +1,8 @@
 import click
-import helpers
+import meistercli.helpers as helpers
+from meistercli.commands import cli
 from tabulate import tabulate
-from commands import cli
+
 
 
 

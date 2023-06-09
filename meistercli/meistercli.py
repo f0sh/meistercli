@@ -1,6 +1,5 @@
-import click
-from commands import *
-from commands_model import *
+from meistercli.commands import *
+from meistercli.commands_model import *
 
 
 if __name__ == '__main__':

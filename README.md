@@ -1,4 +1,11 @@
-# Meistertask CLI
+```
+--      __  __        _       _                ____  _      ___ 
+--     |  \/  |  ___ (_) ___ | |_  ___  _ __  / ___|| |    |_ _|
+--     | |\/| | / _ \| |/ __|| __|/ _ \| '__|| |    | |     | | 
+--     | |  | ||  __/| |\__ \| |_|  __/| |   | |___ | |___  | | 
+--     |_|  |_| \___||_||___/ \__|\___||_|    \____||_____||___|
+--                                                            
+```
 
 Quick and dirty command line interface for the MeisterTask API, which mainly fulfills my daily use cases. To query the Meistertask API a fork of [tomkins/pymeistertask](https://github.com/tomkins/pymeistertask) library is used. Built with [click](https://github.com/pallets/click) for the CLI interface and [tabulate](https://github.com/astanin/python-tabulate) for visualizing in tables.
 
