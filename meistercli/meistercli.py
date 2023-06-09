@@ -2,8 +2,7 @@ from meistercli.commands import *
 from meistercli.commands_model import *
 
 
-if __name__ == '__main__':
-    
+def main():
     sections.add_command(list_elements)
     persons.add_command(list_elements)
     checklists.add_command(list_elements)
@@ -17,4 +16,6 @@ if __name__ == '__main__':
     workintervals.add_command(getid_of_elements)
 
     cli()
-    
+
+if __name__ == '__main__':
+    main()

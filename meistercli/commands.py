@@ -23,8 +23,9 @@ def _getTask(field, value):
 @click.option('-p', '--project', default=2374836, help="Set the project id")
 @click.pass_context
 def cli(ctx, apikey=None, project=None):
-    
-    cfgfiles = [ "~/.meistercli.conf", "..\meistercli.conf" ]
+
+    homedir = str(Path.home())
+    cfgfiles = [ homedir + "/.meistercli.conf", "meistercli.conf" ]
 
     config = None
     ctxobj = {}
