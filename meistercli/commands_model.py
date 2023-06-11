@@ -21,7 +21,7 @@ def projects_list(ctx, status, query):
     meisterApi = ctx.obj
     ressources = meisterApi.projects.all(status=status)
 
-    headers, data = helpers._prepareTabulateData(ressources, query)
+    headers, data = helpers._prepareTabulateData(ressources)
     click.echo("Found {} items:".format(len(data)))
     click.echo(tabulate(data, headers=headers, tablefmt="simple_grid"))
 

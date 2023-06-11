@@ -10,13 +10,6 @@ from pathlib import Path
 from datetime import datetime, timezone, timedelta
 
 
-def _getTask(field, value):
-
-    tasks = meisterApi.tasks.filter_by_project(personal_project, status='open')
-
-    for t in tasks:
-        if(getattr(t, field)) == value:
-            return t
 
 @click.group()
 @click.option('--apikey', help="Set the API key")
@@ -24,8 +17,7 @@ def _getTask(field, value):
 @click.pass_context
 def cli(ctx, apikey=None, project=None):
 
-    homedir = str(Path.home())
-    cfgfiles = [ homedir + "/.meistercli.conf", "meistercli.conf" ]
+    cfgfiles = [ Path.joinpath(Path.home(), ".meistercli.conf"), "meistercli.conf" ]
 
     config = None
     ctxobj = {}
@@ -57,16 +49,24 @@ def cli(ctx, apikey=None, project=None):
 
 @cli.command(short_help='get a task id')
 @click.argument('query')
-def getid(self, query):
+@click.pass_context
+@DeprecationWarning
+def getid(ctx, query):
     """return the task-id for a given meistertask web token
     \f
     which can be a task url or a task token."""
-    
+    project_id = ctx.parent.parent.params['project']
+
     if(query.startswith("http")):
         query = query.split("/")[-1]
     
-    task = _getTask("token", query)
-    click.echo("ID for task \"{}\" is: {}".format(task.name, task.id))
+    tasks = ctx.obj.tasks.filter_by_project(project_id, status='open')
+
+    for t in tasks:
+        if(getattr(t, field)) == value:
+            click.echo("ID for task \"{}\" is: {}".format(task.name, task.id))
+            return
+    
 
 @cli.command()
 @click.argument('comment', callback=helpers.get_stdin, required=False)
@@ -86,8 +86,7 @@ def comment(ctx, comment, task_id):
 @click.pass_context
 def start(ctx, task_id):
     """start a work interval for a given task-id"""
-    # if not task_id:
-    #     task_id = raw_input()
+
     helpers.start_workinterval(ctx.obj, task_id)
 
 
@@ -96,8 +95,7 @@ def start(ctx, task_id):
 @click.pass_context
 def stop(ctx, task_id):
     """stop a running work interval for a given task-id"""
-    if not task_id:
-        task_id = raw_input()
+
     helpers.stop_workinterval(ctx.obj, task_id)
 
 

@@ -1,4 +1,4 @@
-from meistercli.commands import *
+from meistercli.commands import cli
 from meistercli.commands_model import *
 
 
