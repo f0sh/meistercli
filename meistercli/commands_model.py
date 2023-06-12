@@ -197,5 +197,34 @@ def getid_of_elements(ctx, query):
     
     except IndexError as e:
         pass
-
     
+
+@cli.command()
+@click.option('-q', '--query', type=str, default=[], multiple=True, help='only get tasks with given string in name')
+@click.pass_context
+def today(ctx: click.Context, query):
+    """return todays tasks"""
+    section = 8632265
+    status = 'open'
+
+    meisterApi = ctx.obj
+    ressources = meisterApi.tasks.filter_by_section(section, status='open')
+    headers, data = helpers._prepareTabulateData(ressources, ['status', 'section_id', 'section_name', 'assigned_to_id'])
+    width = helpers._prepareTabulateWidth(headers)
+
+    click.echo("Found {} items:".format(len(data)))
+    click.echo(tabulate(data, headers=headers, tablefmt="simple_grid", maxcolwidths=width))
+
+    # ctx.forward(list_tasks, status=status, section=section, query=query)
+
+
+@cli.command()
+@click.argument('task-id', callback=helpers.get_stdin, required=True)
+@click.pass_context
+def done(ctx, task_id):
+    """mark a task as done"""
+
+    meisterApi = ctx.obj
+    data = {'status': 2}
+    task = meisterApi.tasks.update(task_id, data=data)
+    click.echo("Completed task {}".format(task.name))

@@ -97,5 +97,4 @@ def stop(ctx, task_id):
     """stop a running work interval for a given task-id"""
 
     helpers.stop_workinterval(ctx.obj, task_id)
-
-
+    

@@ -29,7 +29,7 @@ def _prepareTabulateWidth(headers):
             width.append(None)
     return width
 
-def _prepareTabulateData(ressources):
+def _prepareTabulateData(ressources, colfilter=None):
 
     # data = [[('' if ressource.__getattribute__(h) == None else ressource.__getattribute__(h)) for h in headers] for ressource in ressources]
 
@@ -43,6 +43,7 @@ def _prepareTabulateData(ressources):
  
         # filter headers for unwanted columns
         headers = [i for i in ressources[0]._setattrs if i not in ["project_id", "notes", "notes_html", "assignee_name", "sequence"]]
+        if colfilter: headers = [i for i in headers if i not in colfilter]
         
         for h in headers:
 
