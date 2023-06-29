@@ -1,7 +1,7 @@
 """Helpers for the CLI commands"""
 # pylint: disable=unused-argument, protected-access
-import click
 from datetime import datetime, timezone
+import click
 
 def get_stdin(ctx, param, value):
     if not value and not click.get_text_stream('stdin').isatty():
@@ -25,8 +25,8 @@ def _getStatus(obj, obj_id):
 def _prepareTabulateWidth(headers):
 
     width = list()
-    for h in headers:
-        if h in ["description", "notes", "notes_html", "name"]:
+    for header in headers:
+        if header in ["description", "notes", "notes_html", "name"]:
             width.append(30)
         else:
             width.append(None)
@@ -34,7 +34,7 @@ def _prepareTabulateWidth(headers):
 
 def _prepareTabulateData(ressources, colfilter=None):
 
-    # data = [[('' if ressource.__getattribute__(h) == None else ressource.__getattribute__(h)) for h in headers] for ressource in ressources]
+    # data = [[('' if ressource.__getattribute__(header) == None else ressource.__getattribute__(header)) for header in headers] for ressource in ressources]
 
     # prepare the dataset as a list of list, because tabulate cannot consume the Ressource object
     data = list()
@@ -48,34 +48,34 @@ def _prepareTabulateData(ressources, colfilter=None):
         headers = [i for i in ressources[0]._setattrs if i not in ["project_id", "notes", "notes_html", "assignee_name", "sequence"]]
         if colfilter: headers = [i for i in headers if i not in colfilter]
         
-        for h in headers:
+        for header in headers:
 
-            element_value = ressource.__getattribute__(h)
+            element_value = ressource.__getattribute__(header)
 
             # Eliminate None Objects
-            if element_value == None:
+            if element_value is None:
                 line.append('')
             # remove (avatar) URLS 
-            elif h.startswith("avatar"):
+            elif header.startswith("avatar"):
                 line.append("[URL]")
             # make long (>50) strings short
             elif len(str(element_value)) > 50:
                 line.append(str(element_value)[0:50])
             # make timestamps short
-            elif (h.endswith('_at') or h == "due") and len(element_value) > 10:
+            elif (header.endswith('_at') or header == "due") and len(element_value) > 10:
                 line.append(click.style(str(element_value)[0:16], fg='green'))
             # make IDs blue
-            elif h.endswith('_id') or h == 'id':
+            elif header.endswith('_id') or header == 'id':
                 line.append(click.style(element_value, fg='blue'))
             # make tokens red
-            elif h == 'token':
+            elif header == 'token':
                 line.append(click.style(element_value, fg='red'))
             # make colors, colorful
-            elif h == 'color':
+            elif header == 'color':
                 color = tuple(int(element_value[i:i+2], 16) for i in (0, 2, 4))
                 line.append(click.style(element_value, fg=color))
             # replace status id's with text
-            elif h == 'status':
+            elif header == 'status':
                 status_element_value = _getStatus(ressource, element_value)
                 line.append(click.style(status_element_value, bold=True))
             else:
@@ -102,7 +102,8 @@ def _filter(ressources: list, query: tuple):
                     matched.append(True)
                     
         
-        if len(matched) == len(query_tuples): yield ressource
+        if len(matched) == len(query_tuples):
+            yield ressource
 
 
 def getRessource(context, ressource_name, project_id, query):

@@ -1,6 +1,7 @@
 """CLI Commands"""
 # pylint: disable=unused-argument, protected-access
 import json
+import sys
 from pathlib import Path
 from pymeistertask.api import MeisterTaskAPI
 import click
@@ -14,7 +15,7 @@ from meistercli import helpers
 @click.pass_context
 def cli(ctx, apikey=None, project=None):
     # pylint: disable=broad-exception-caught
-    
+
     cfgfiles = [ Path.joinpath(Path.home(), ".meistercli.conf"), "meistercli.conf" ]
 
     config = None
@@ -30,9 +31,10 @@ def cli(ctx, apikey=None, project=None):
                 config = json.load(config_file)
                 apikey = config['apikey']
         except OSError as e:
-            if e is OSError: continue
+            if e is OSError:
+                continue
             print ("Error in config file " + cfgfile + ": " + str(e))
-            exit()
+            sys.exit()
 
     if apikey is not None: 
         # save APIKEY for later use

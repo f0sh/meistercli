@@ -91,10 +91,10 @@ def getid_of_task(ctx, task_id, status, section, query, token):
         query = list(query)
         query.append('token={}'.format(token))
 
-    if(task_id):
+    if task_id:
         ressources = list(meisterApi.tasks.get(task_id))
 
-    elif(section):
+    elif section:
         ressources = meisterApi.tasks.filter_by_section(section, status=status)
 
     else:
@@ -120,14 +120,20 @@ def getid_of_task(ctx, task_id, status, section, query, token):
 def add_task(ctx, title, section, notes, due, label):
     """create a new task"""
 
-    if not title: title = click.prompt("Task Title", type=str)
-    if not notes: notes = click.prompt("Task Description", type=str)
+    if not title:
+        title = click.prompt("Task Title", type=str)
+    if not notes:
+        notes = click.prompt("Task Description", type=str)
 
     data = {}
-    if title: data['name'] = title
-    if notes: data['notes'] = notes
-    if due: data['due'] = due
-    if label: data['label'] = label
+    if title:
+        data['name'] = title
+    if notes:
+        data['notes'] = notes
+    if due:
+        data['due'] = due
+    if label:
+        data['label'] = label
     click.echo("About to create new task: {}".format(data))
     ctx.obj.tasks.create(section_id=section, data=data)
     
