@@ -1,3 +1,5 @@
+"""Main scripts"""
+# pylint: disable=wildcard-import, unused-wildcard-import
 from meistercli.commands import cli
 from meistercli.commands_model import *
 
@@ -15,7 +17,7 @@ def main():
     labels.add_command(getid_of_elements)
     workintervals.add_command(getid_of_elements)
 
-    cli()
+    cli(None)
 
 if __name__ == '__main__':
     main()

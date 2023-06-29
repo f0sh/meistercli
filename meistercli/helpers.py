@@ -1,5 +1,7 @@
+"""Helpers for the CLI commands"""
+# pylint: disable=unused-argument, protected-access
 import click
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 def get_stdin(ctx, param, value):
     if not value and not click.get_text_stream('stdin').isatty():
@@ -7,9 +9,10 @@ def get_stdin(ctx, param, value):
     else:
         return value
 
-def _getStatus(object, id):
+def _getStatus(obj, obj_id):
 
-    res_type = str(type(object))
+    res_type = str(type(obj))
+    status = {}
     if  res_type == "<class 'pymeistertask.projects.Project'>":
         status = {1: "active", 4: "trashed", 5:"archived"}
     elif res_type == "<class 'pymeistertask.sections.Section'>":
@@ -17,7 +20,7 @@ def _getStatus(object, id):
     elif res_type == "<class 'pymeistertask.tasks.Task'>":
         status = {1: "open", 2: "completed", 8:"trashed", 18:"completed_archived"}
 
-    return status[id]
+    return status[obj_id]
 
 def _prepareTabulateWidth(headers):
 
@@ -38,7 +41,7 @@ def _prepareTabulateData(ressources, colfilter=None):
     
 
     for ressource in ressources:
-        filterout = False
+
         line = list()
  
         # filter headers for unwanted columns
@@ -118,7 +121,7 @@ def stop_workinterval(meisterApi, task_id):
     end_time = datetime.now(tz=timezone.utc).isoformat()
     data = {'finished_at': end_time}
     meisterApi.workintervals.update(interval.id, data)
-    click.echo("Stopped workinterval on task \"{}\" at {}".format(task_id, str(end_time)))
+    click.echo(f"Stopped workinterval on task \"{task_id}\" at {end_time}")
 
 def start_workinterval(meisterApi, task_id):
     """stops a workinterval for the given task id"""
@@ -126,4 +129,4 @@ def start_workinterval(meisterApi, task_id):
     start_time = datetime.now(tz=timezone.utc).isoformat()
     data = {'started_at': start_time}
     meisterApi.workintervals.create(task_id, data)
-    click.echo("Started workinterval for task \"{}\" at {}".format(task_id, str(start_time)))
+    click.echo(f"Started workinterval for task \"{task_id}\" at {start_time}")

@@ -1,10 +1,9 @@
+"""CLI Commands regarding the pymeistertask API model"""
+# pylint: disable=unused-argument, protected-access
 import click
+from tabulate import tabulate
 import meistercli.helpers as helpers
 from meistercli.commands import cli
-from tabulate import tabulate
-
-
-
 
 @cli.group()
 def projects():
@@ -22,7 +21,7 @@ def projects_list(ctx, status, query):
     ressources = meisterApi.projects.all(status=status)
 
     headers, data = helpers._prepareTabulateData(ressources)
-    click.echo("Found {} items:".format(len(data)))
+    click.echo(f"Found {len(data)} items:")
     click.echo(tabulate(data, headers=headers, tablefmt="simple_grid"))
 
 
@@ -44,17 +43,17 @@ def list_tasks(ctx, task_id, status, section, query: list, token):
     project_id = ctx.parent.parent.params['project']
     meisterApi = ctx.obj
 
-    if(token and token.startswith("http")):
+    if token and token.startswith("http"):
         token = token.split("/")[-1]
 
     if token:
         query = list(query)
         query.append('token={}'.format(token))
 
-    if(task_id):
+    if task_id:
         ressources = list(meisterApi.tasks.get(task_id))
 
-    elif(section):
+    elif section:
         ressources = meisterApi.tasks.filter_by_section(section, status=status, items=500)
 
     else:
@@ -105,10 +104,10 @@ def getid_of_task(ctx, task_id, status, section, query, token):
         ressources = list(helpers._filter(ressources, query))
 
     try:
-        id = [r.id for r in ressources][0]
-        click.echo(id)
+        res_id = [r.id for r in ressources][0]
+        click.echo(res_id)
     
-    except IndexError as e:
+    except IndexError:
         pass
 
 @tasks.command('add')
@@ -121,8 +120,8 @@ def getid_of_task(ctx, task_id, status, section, query, token):
 def add_task(ctx, title, section, notes, due, label):
     """create a new task"""
 
-    if not title: task_title = click.prompt("Task Title", type=str)
-    if not title: task_note = click.prompt("Task Description", type=str)
+    if not title: title = click.prompt("Task Title", type=str)
+    if not notes: notes = click.prompt("Task Description", type=str)
 
     data = {}
     if title: data['name'] = title
@@ -192,10 +191,10 @@ def getid_of_elements(ctx, query):
     ressources = helpers.getRessource(meisterApi, ctx.parent.info_name, project_id, query)
 
     try:
-        id = [r.id for r in ressources][0]
-        click.echo(id)
+        res_id = [r.id for r in ressources][0]
+        click.echo(res_id)
     
-    except IndexError as e:
+    except IndexError:
         pass
     
 
@@ -205,7 +204,6 @@ def getid_of_elements(ctx, query):
 def today(ctx: click.Context, query):
     """return todays tasks"""
     section = 8632265
-    status = 'open'
 
     meisterApi = ctx.obj
     ressources = meisterApi.tasks.filter_by_section(section, status='open')

@@ -1,1 +1,1 @@
-pkgname = 'meistercli'
+PKGNAME = 'meistercli'
